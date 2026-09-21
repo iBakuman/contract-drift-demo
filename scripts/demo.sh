@@ -8,7 +8,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PORT=8099
-BIN="$(mktemp -t contract-drift-demo-server)"
+WORK=.demo-tmp
+BIN="$WORK/server"
+LOG="$WORK/server.log"
 
 if [ ! -d frontend/node_modules ]; then
   echo "frontend dependencies are not installed. Run:" >&2
@@ -16,23 +18,25 @@ if [ ! -d frontend/node_modules ]; then
   exit 1
 fi
 
-(cd backend && go build -o "$BIN" .)
+mkdir -p "$WORK"
+(cd backend && go build -o "../$BIN" .)
 
 # The server's own log would interleave with the demo output, so send it to a
 # file and only show it if the server fails to come up.
-LOG="$(mktemp -t contract-drift-demo-log)"
 "$BIN" >"$LOG" 2>&1 &
 SERVER_PID=$!
 
 cleanup() {
   kill "$SERVER_PID" 2>/dev/null || true
   wait "$SERVER_PID" 2>/dev/null || true
-  rm -f "$BIN" "$LOG"
+  rm -rf "$WORK"
 }
 trap cleanup EXIT
 
+ready=""
 for _ in $(seq 1 100); do
   if curl -sf "http://localhost:$PORT/widgets?scenario=ok" >/dev/null 2>&1; then
+    ready=yes
     break
   fi
   if ! kill -0 "$SERVER_PID" 2>/dev/null; then
@@ -43,8 +47,8 @@ for _ in $(seq 1 100); do
   sleep 0.1
 done
 
-if ! curl -sf "http://localhost:$PORT/widgets?scenario=ok" >/dev/null 2>&1; then
-  echo "the server did not become ready on port $PORT within 10s:" >&2
+if [ -z "$ready" ]; then
+  echo "the server did not answer on port $PORT within 10s:" >&2
   cat "$LOG" >&2
   exit 1
 fi
