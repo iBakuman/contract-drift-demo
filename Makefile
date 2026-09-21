@@ -10,9 +10,9 @@ check:
 
 # The client-side view: the types have nothing to complain about.
 typecheck:
-	cd frontend && pnpm --silent typecheck && echo "tsc --strict: no errors"
+	cd frontend && pnpm typecheck && echo "tsc --strict: no errors"
 
 # Re-run both generators. Only needed if you edit openapi.yaml.
 generate:
 	cd backend && oapi-codegen --config api/cfg.yaml ../openapi.yaml
-	cd frontend && pnpm --silent generate
+	cd frontend && pnpm generate
