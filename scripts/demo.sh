@@ -5,10 +5,11 @@
 # line that started it.
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
 
 PORT=8099
-WORK=.demo-tmp
+WORK="$ROOT/.demo-tmp"
 BIN="$WORK/server"
 LOG="$WORK/server.log"
 
@@ -19,7 +20,7 @@ if [ ! -d frontend/node_modules ]; then
 fi
 
 mkdir -p "$WORK"
-(cd backend && go build -o "../$BIN" .)
+(cd backend && go build -o "$BIN" .)
 
 # The server's own log would interleave with the demo output, so send it to a
 # file and only show it if the server fails to come up.
