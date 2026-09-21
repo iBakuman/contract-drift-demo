@@ -218,6 +218,7 @@ scenario omit-optional  → 无违规
 ## 文件导览
 
 ```
+scripts/demo.sh                         起服务端、跑客户端、收尾清理
 openapi.yaml                            全部契约，约 40 行
 backend/main.go                         三个 handler：正确的、模式 A、模式 B
 backend/api/types.gen.go                oapi-codegen 产物（已 check in）

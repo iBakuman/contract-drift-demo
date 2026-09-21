@@ -7,6 +7,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -16,8 +17,13 @@ import (
 func main() {
 	http.HandleFunc("/widgets", listWidgets)
 
+	ln, err := net.Listen("tcp", ":8099")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Println("listening on http://localhost:8099")
-	log.Fatal(http.ListenAndServe(":8099", nil))
+	log.Fatal(http.Serve(ln, nil))
 }
 
 func listWidgets(w http.ResponseWriter, r *http.Request) {

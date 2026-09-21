@@ -278,6 +278,7 @@ sending illegal values is to stop the server sending them.
 ## Files
 
 ```
+scripts/demo.sh                         starts the server, runs the client, cleans up
 openapi.yaml                            the whole contract, ~40 lines
 backend/main.go                         three handlers: correct, mode A, mode B
 backend/api/types.gen.go                oapi-codegen output (checked in)

@@ -1,18 +1,14 @@
-.PHONY: demo check generate typecheck clean
+.PHONY: demo check typecheck generate
 
-# The whole demo: start the server, run the client against all three
-# scenarios, stop the server.
+# The whole demo: start the server, call it three times, show what breaks.
 demo:
-	@cd backend && go build -o /tmp/contract-drift-demo-server .
-	@/tmp/contract-drift-demo-server & echo $$! > /tmp/contract-drift-demo.pid; sleep 1
-	@cd frontend && pnpm --silent consume || true
-	@kill `cat /tmp/contract-drift-demo.pid` 2>/dev/null; rm -f /tmp/contract-drift-demo.pid
+	./scripts/demo.sh
 
 # The server-side defence: check real response bytes against the spec.
 check:
 	cd backend && go test ./... -run TestContractCheck -v
 
-# The client-side defence: the types say nothing is wrong.
+# The client-side view: the types have nothing to complain about.
 typecheck:
 	cd frontend && pnpm --silent typecheck && echo "tsc --strict: no errors"
 
@@ -20,6 +16,3 @@ typecheck:
 generate:
 	cd backend && oapi-codegen --config api/cfg.yaml ../openapi.yaml
 	cd frontend && pnpm --silent generate
-
-clean:
-	rm -f /tmp/contract-drift-demo-server /tmp/contract-drift-demo.pid
