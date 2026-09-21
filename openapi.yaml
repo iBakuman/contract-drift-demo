@@ -1,0 +1,57 @@
+openapi: 3.0.3
+info:
+  title: Widget Catalogue
+  version: 1.0.0
+  description: |
+    A deliberately tiny contract. It exists to show two different ways a
+    generated client and a generated server can drift apart while both sides
+    look correct.
+servers:
+  - url: http://localhost:8099
+paths:
+  /widgets:
+    get:
+      operationId: listWidgets
+      summary: List widgets
+      parameters:
+        - name: scenario
+          in: query
+          required: true
+          description: Which server implementation to exercise.
+          schema:
+            type: string
+            enum: [ok, nil-slice, omit-optional]
+      responses:
+        '200':
+          description: A page of widgets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetList'
+components:
+  schemas:
+    WidgetList:
+      type: object
+      required: [generatedAt]
+      properties:
+        generatedAt:
+          type: string
+          description: Always present.
+        items:
+          type: array
+          description: >-
+            Optional, and NOT nullable. Either the key is absent, or its value
+            is an array. `null` is not a legal value here.
+          items:
+            $ref: '#/components/schemas/Widget'
+    Widget:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+          description: >-
+            Optional. A server is free to leave this out; a client must cope
+            with it being absent.
